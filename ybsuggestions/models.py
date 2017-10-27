@@ -1,4 +1,4 @@
-from app import db
+from ybsuggestions import db
 from datetime import datetime
 
 

@@ -1,8 +1,10 @@
-from app import app
-from flask import render_template
+from flask import render_template, Blueprint
 
-@app.route('/')
-@app.route('/index')
+application_blueprint = Blueprint('app', __name__, template_folder='templates')
+
+
+@application_blueprint.route('/')
+@application_blueprint.route('/index')
 def index():
     user = {'nickname': 'Miguel'}  # fake user
     posts = [  # fake array of posts
