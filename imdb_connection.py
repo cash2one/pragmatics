@@ -4,6 +4,7 @@ from imdb import IMDb
 
 
 def run(movie_title):
+    print movie_title
     imdb = IMDb()
 
     movie_list = imdb.search_movie(args[1])
@@ -12,7 +13,10 @@ def run(movie_title):
         return None
 
     first_match = movie_list[0]
+    imdb.update(first_match)
 
+    print first_match['rating']
+    print first_match['genre']
     return first_match
 
 
