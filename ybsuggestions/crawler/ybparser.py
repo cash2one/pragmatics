@@ -6,6 +6,10 @@ class YBParser:
     def __init__(self, feed_url):
         self._feed_url = feed_url
 
+    @staticmethod
+    def _remove_titles_duplicates(movie_titles):
+        return list(set(movie_titles))
+
     def parse_feed(self):
         try:
             feed = feedparser.parse(self._feed_url)
@@ -26,8 +30,11 @@ class YBParser:
     @staticmethod
     def get_movies_titles(torrents_titles):
         movies_titles = []
-        for t_title in torrents_titles:
-            m_title = ptn.parse(t_title)
-            movies_titles.append(m_title)
+        for title in torrents_titles:
+            movie_info = ptn.parse(title)
 
-        return movies_titles
+            if 'title' in movie_info:
+                if movie_info['title'] != '':
+                    movies_titles.append(movie_info['title'])
+
+        return YBParser._remove_titles_duplicates(movies_titles)

@@ -1,4 +1,4 @@
-from ybsuggestions.crawler.helpers import YBParser
+from ybsuggestions.crawler.ybparser import YBParser
 from ybsuggestions import app
 
 
