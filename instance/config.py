@@ -1,4 +1,4 @@
-SQLALCHEMY_DATABASE_URI = 'postgresql://newhope_movies:pragma566I@s39.vdl.pl/newhope_movies'
+SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 YOURBIT_MOVIES_URL = 'https://yourbittorrent.com/movies/rss.xml'
