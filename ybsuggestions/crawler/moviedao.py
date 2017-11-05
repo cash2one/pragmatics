@@ -14,13 +14,16 @@ class MovieDAO:
         self.imdb_info = None
         self.movie = None
 
-    def build_movie(self):
-        if self._imdb_info:
-            title = self._imdb_info['title']
-            genre = self._imdb_info['genre']
-            rate = self._imdb_info['rate']
+    def create_movie(self):
+        if self.imdb_info:
+            if self.imdb_info[0] != '':
+                title = self.imdb_info[0]
+                rating = self.imdb_info[1]
+                genres = MovieDAO.fetch_movie_genres(self.imdb_info[2])
 
-            self.movie = Movie(name=title, genre_id=genre.id, rating=rate)
+                self.movie = Movie(name=title, rating=rating, genres=genres)
+            else:
+                raise Exception('IMDB info is empty')
         else:
             raise Exception('IMDB info is missing')
 
@@ -30,13 +33,18 @@ class MovieDAO:
             db.session.commit(self.movie)
 
     @staticmethod
-    def fetch_movie_genre(genre_name):
-        genre = Genre.query.filter_by(name=genre_name).first()
+    def fetch_movie_genres(genres_names):
+        genres = []
+        for genre_name in genres_names:
 
-        if not genre:
-            genre = Genre(genre_name)
-            db.session.add(genre)
-            db.session.commit(genre)
+            genre = Genre.query.filter_by(name=genre_name).first()
 
-        return genre
+            if not genre:
+                genre = Genre(genre_name)
+                db.session.add(genre)
+                db.session.commit(genre)
+
+            genres.append(genre)
+
+        return genres
 
