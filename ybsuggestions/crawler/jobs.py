@@ -24,9 +24,12 @@ def _create_chunks(collection, chunksize):
 
 
 def _add_movies(moviedaos):
-    for dao in moviedaos:
-        dao.create_movie()
-
+    for dao_idx in range(len(moviedaos)):
+        try:
+            moviedaos[dao_idx].create_movie()
+        except Exception as e:
+            print(e)
+        moviedaos[dao_idx].add_movie()
 
 # ASYNCIO JOBS
 
@@ -56,28 +59,32 @@ def job_check_new_movies(chunksize=0):
 
     _add_movies(moviedaos)
 
-    yield moviedaos
+    return moviedaos
 # HELPERS
 
 
 # ASYNC FUNCTIONS
 
 async def call_imdbpy(movie_title):
-    args = ["python2", "-W", "ignore",
-            app.root_path + "\crawler\imdbpy_p2script.py",
-            str(movie_title)]
+    # args = ["python2", "-W", "ignore",
+    #         app.root_path + "\crawler\imdbpy_p2script.py",
+    #         str(movie_title)]
+    #
+    # process = await asyncio.create_subprocess_exec(
+    #     *args, stdout=asyncio.subprocess.PIPE)
 
-    process = await asyncio.create_subprocess_exec(
-        *args, stdout=asyncio.subprocess.PIPE)
+    process = await asyncio.create_subprocess_shell(
+        "python2 -W ignore " + app.root_path + "\crawler\imdbpy_p2script.py '" + str(movie_title) + "'"
+        , stdout=asyncio.subprocess.PIPE)
 
-    stdout = await process.stdout.readline()
+    stdout, stderr = await process.communicate()
 
     if process.returncode == 0:
         print('Done! ', '(pid = ' + str(process.pid) + ')')
     else:
         print('Failed! ', '(pid = ' + str(process.pid) + ')')
 
-    return stdout
+    return stdout.decode("utf-8").strip().replace("u'", "")
 
 
 async def update_imdb_info(moviedao, dao_idx=None):
@@ -87,12 +94,13 @@ async def update_imdb_info(moviedao, dao_idx=None):
 
     imdbpy_output = await call_imdbpy(moviedao.movie_title)
 
-    imdbpy_output = imdbpy_output.decode("utf-8").strip().replace("u'", "")
+    # imdbpy_output = imdbpy_output
 
     if imdbpy_output == 'IMDBFoundNothingException':
         moviedao.imdb_info = []
         if dao_idx is not None:
             print('IMDB found nothing for idx: %d' % dao_idx)
+            return False
 
     imdb_info = imdbpy_output.split('||')
     if len(imdb_info) > 2:

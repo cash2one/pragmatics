@@ -16,21 +16,34 @@ class MovieDAO:
 
     def create_movie(self):
         if self.imdb_info:
-            if self.imdb_info[0] != '':
+            if len(self.imdb_info) == 3:
                 title = self.imdb_info[0]
-                rating = self.imdb_info[1]
-                genres = MovieDAO.fetch_movie_genres(self.imdb_info[2])
 
-                self.movie = Movie(name=title, rating=rating, genres=genres)
+                if not MovieDAO.is_movie_duplicate(title):
+                    rating = self.imdb_info[1]
+                    genres = MovieDAO.fetch_movie_genres(self.imdb_info[2])
+
+                    self.movie = Movie(name=title, rating=rating, genres=genres)
+                else:
+                    raise Exception('Movie already in database')
             else:
                 raise Exception('IMDB info is empty')
         else:
             raise Exception('IMDB info is missing')
 
-    def insert_movie(self):
+    def add_movie(self):
         if self.movie:
             db.session.add(self.movie)
-            db.session.commit(self.movie)
+            db.session.commit()
+            db.session.flush()
+
+            print('New movie added to database: %s(#%d)' % (self.movie.name, self.movie.id))
+
+    @staticmethod
+    def is_movie_duplicate(movie_title):
+        movie = Movie.query.filter_by(name=movie_title).first()
+
+        return True if movie else False
 
     @staticmethod
     def fetch_movie_genres(genres_names):
@@ -40,11 +53,20 @@ class MovieDAO:
             genre = Genre.query.filter_by(name=genre_name).first()
 
             if not genre:
-                genre = Genre(genre_name)
-                db.session.add(genre)
-                db.session.commit(genre)
+                genre = MovieDAO.add_genre(genre_name)
 
             genres.append(genre)
 
+        db.session.flush()
+
         return genres
+
+    @staticmethod
+    def add_genre(genre_name):
+        genre = Genre(name=genre_name)
+        db.session.add(genre)
+        db.session.commit()
+
+        print('New genre added to database: %s(#%d)' % (genre.name, genre.id))
+        return genre
 
