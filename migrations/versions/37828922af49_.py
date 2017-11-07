@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 8b89e9d65a4d
+Revision ID: 37828922af49
 Revises: 
-Create Date: 2017-11-05 23:20:43.952512
+Create Date: 2017-11-07 13:47:34.578001
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '8b89e9d65a4d'
+revision = '37828922af49'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -28,17 +28,16 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=128), nullable=False),
     sa.Column('rating', sa.Float(precision=2), nullable=True),
+    sa.Column('cover', sa.String(length=256), nullable=True),
     sa.Column('date', sa.DateTime(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_movie_name'), 'movie', ['name'], unique=True)
-    op.create_index(op.f('ix_movie_rating'), 'movie', ['rating'], unique=False)
     op.create_table('profile',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=128), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_profile_name'), 'profile', ['name'], unique=False)
     op.create_table('movie_genres',
     sa.Column('genre_id', sa.Integer(), nullable=False),
     sa.Column('movie_id', sa.Integer(), nullable=False),
@@ -68,9 +67,7 @@ def downgrade():
     op.drop_table('profile_whitelist')
     op.drop_table('profile_blacklist')
     op.drop_table('movie_genres')
-    op.drop_index(op.f('ix_profile_name'), table_name='profile')
     op.drop_table('profile')
-    op.drop_index(op.f('ix_movie_rating'), table_name='movie')
     op.drop_index(op.f('ix_movie_name'), table_name='movie')
     op.drop_table('movie')
     op.drop_index(op.f('ix_genre_name'), table_name='genre')

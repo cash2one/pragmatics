@@ -30,7 +30,11 @@ def run(movie_title):
         genres = first_match['genre']
     except KeyError:
         genres = []
-    print "%s||%f||%s" % (title, rating, genres)
+    try:
+        cover = first_match['cover url']
+    except KeyError:
+        cover = ''
+    print "%s||%f||%s||%s" % (title, rating, genres, cover)
     return
 
 if  __name__ =='__main__':

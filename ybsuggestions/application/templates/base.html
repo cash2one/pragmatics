@@ -13,28 +13,58 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 <body>
-    <div class="container">
-        <div class="row">
-            <div class="large-12">
-                {% with messages = get_flashed_messages() %}
-                  {% if messages %}
-                    <ul>
-                    {% for message in messages %}
-                        <li>{{ message }} </li>
-                    {% endfor %}
+    <div class="off-canvas-wrapper">
+        <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
+            <div class="off-canvas position-left reveal-for-large" id="profile-info" data-off-canvas>
+                <div class="row column">
+                    <br/>
+                    <label>Profile: </label>
+                    {% if profile %}
+                    <select>
+                        <option value="profile.id">{{ profile.name }}</option>
+                        <option disabled>---</option>
+                        <option class="add_profile">Add new</option>
+                    </select>
+                    <a href="#" class="button edit_profile">Edit</a>
+                    {% else %}
+                    <a href="#" class="button add_profile">Add new</a>
+                    {% endif %}
+                </div>
+                <div class="row column">
+                    <ul class="vertical menu">
+                      <li><a href="{{ url_for('application.index') }}">Home</a></li>
+                      <li><a href="{{ url_for('application.profile') }}">Profiles</a></li>
+                      <li><a href="{{ url_for('application.movie') }}">All movies</a></li>
                     </ul>
-                  {% endif %}
-                {% endwith %}
+                </div>
+            </div>
+
+            <div class="off-canvas-content" data-off-canvas-content>
+                <div class="title-bar hide-for-large">
+                    <div class="title-bar-left">
+                    <button class="menu-icon" type="button" data-open="my-info"></button>
+                    <span class="title-bar-title">Mike Mikerson</span>
+                    </div>
+                </div>
+
+                <div class="callout primary">
+                {% block primary %}{% endblock %}
+                </div>
+
+                {% block content %}{% endblock %}
+
             </div>
         </div>
-        {% block content %}{% endblock %}
     </div>
 
-    <script src="{{ url_for('static', filename='js/vendor/jquery.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/vendor/what-input.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/vendor/foundation.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery-2.1.4.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/foundation.js') }}"></script>
     <script>
       $(document).foundation();
+    </script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    <script>
+        var profile_url = '{{ url_for('application.profile') }}';
     </script>
 </body>
 </html>

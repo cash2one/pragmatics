@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div class="object-list row">
+        <div class="large-12">
+            <table>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+                {% for item in obj %}
+                    <tr>
+                        <td>#</td>
+                        <td><a href="{{ url_for('application.profile') }}{{ item.id }}" title="{{ item.name }}">{{ item.name }}</a></td>
+                        <td><a class="pure-button pure-button-primary button blue" href="{{path + item.id|string}}"></a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+	</div>
+
+{% endblock %}

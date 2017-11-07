@@ -23,10 +23,11 @@ movie_genres = db.Table('movie_genres',
 class Movie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), index=True, unique=True, nullable=False)
-    rating = db.Column(db.Float(2), index=True)
+    rating = db.Column(db.Float(2))
     genres = db.relationship('Genre', secondary=movie_genres,
                                 lazy='subquery',
                                 backref=db.backref('genres', lazy=True))
+    cover = db.Column(db.String(256), nullable=True)
     date = db.Column(db.DateTime, nullable=False,
                      default=datetime.utcnow)
 
@@ -38,6 +39,7 @@ class Movie(db.Model):
                 'title': self.name,
                 'rating': self.name,
                 'genres_ids': [genre.id for genre in self.genres]}
+
 
 profile_whitelist = db.Table('profile_whitelist',
                              db.Column('genre_id', db.Integer,
@@ -60,11 +62,11 @@ profile_blacklist = db.Table('profile_blacklist',
 
 class Profile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128), index=True, nullable=False)
+    name = db.Column(db.String(128), nullable=False)
     whitelist = db.relationship('Genre', secondary=profile_whitelist,
                                 lazy='subquery',
                                 backref=db.backref('whitelist', lazy=True))
-    blacklist = db.relationship('Genre', secondary=profile_whitelist,
+    blacklist = db.relationship('Genre', secondary=profile_blacklist,
                                 lazy='subquery',
                                 backref=db.backref('blacklist', lazy=True))
 

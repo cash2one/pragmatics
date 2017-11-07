@@ -16,14 +16,15 @@ class MovieDAO:
 
     def create_movie(self):
         if self.imdb_info:
-            if len(self.imdb_info) == 3:
+            if len(self.imdb_info) == 4:
                 title = self.imdb_info[0]
 
                 if not MovieDAO.is_movie_duplicate(title):
                     rating = self.imdb_info[1]
                     genres = MovieDAO.fetch_movie_genres(self.imdb_info[2])
+                    cover = self.imdb_info[3]
 
-                    self.movie = Movie(name=title, rating=rating, genres=genres)
+                    self.movie = Movie(name=title, rating=rating, genres=genres, cover=cover)
                 else:
                     raise Exception('Movie already in database')
             else:
