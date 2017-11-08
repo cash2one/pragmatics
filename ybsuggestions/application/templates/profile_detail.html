@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <form action="{{ action }}" method="post">
+    {{ form.hidden_tag() }}
+	<div class="row">
+        <div class="large-12 columns">
+            <label>Name:</label>
+            {{ form.name }}
+        </div>
+        <div class="large-12 columns">
+            <label>Whitelist:</label>
+            {{ form.whitelist }}
+        </div>
+        <div class="large-12 columns">
+            <label>Blacklist:</label>
+            {{ form.blacklist }}
+        </div>
+        <div class="large-12 columns">
+            <input class="button" type="submit" value="Send" />
+        </div>
+	</div>
+    </form>
+{% endblock %}

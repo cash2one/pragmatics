@@ -1,6 +1,7 @@
 import platform
-import os
+import requests
 import asyncio
+import time
 from ybsuggestions.crawler.ybparser import YBParser
 from ybsuggestions.crawler.moviedao import MovieDAO
 from ybsuggestions import app
@@ -31,13 +32,31 @@ def _add_movies(moviedaos):
             print(e)
         moviedaos[dao_idx].add_movie()
 
-# ASYNCIO JOBS
 
+def _is_server_online():
+    try:
+        r = requests.get('http://127.0.0.1:5000/')
+    except Exception as e:
+        print('Flask server is not responding. Loop stopped.')
+        return False
+
+    return True
+
+
+# JOBS
 
 def job_check_new_movies(chunksize=0):
+    if not _is_server_online():
+        return
 
     moviedaos = _create_moviedaos()
 
+    if not moviedaos:
+        print('YourBit response is empty. Will try again in 5 minutes.')
+        time.sleep(1 * 5 * 60)
+        return job_check_new_movies(chunksize)
+
+    print('Movies update started')
     tasks = []
     for dao_idx in range(len(moviedaos)):
         tasks.append(update_imdb_info(moviedaos[dao_idx], dao_idx))
@@ -58,9 +77,10 @@ def job_check_new_movies(chunksize=0):
             loop.close()
 
     _add_movies(moviedaos)
+    print('Movies update ended. Waiting 12 hours...')
+    time.sleep(12 * 60 * 60)
 
-    return moviedaos
-# HELPERS
+    return job_check_new_movies(chunksize)
 
 
 # ASYNC FUNCTIONS

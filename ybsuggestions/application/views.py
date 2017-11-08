@@ -1,13 +1,28 @@
-from flask import flash, redirect, render_template, request, Blueprint
+from flask import flash, url_for, redirect, render_template, request, Blueprint
+import requests
+import json
 from ybsuggestions.models import Profile, Movie
 from ybsuggestions.forms import ProfileForm, MovieForm
 from ybsuggestions import db
 
 
-def render_with_defaults(template, **kwargs):
-    profile = Profile.query.order_by(Profile.id.asc()).first()
+def get_defaults():
+    if 'profile_id' in request.cookies:
+        profile_id = int(request.cookies.get('profile_id'))
+        current_profile = Profile.query.get(profile_id)
+    else:
+        current_profile = Profile.query.order_by(Profile.id.asc()).first()
 
-    return render_template(template, **kwargs, profile=profile)
+    profiles = Profile.query.all()
+    if not profiles:
+        profiles = None
+
+    defaults = {
+        'profiles': profiles,
+        'current_profile': current_profile
+    }
+
+    return defaults
 
 
 application_blueprint = Blueprint('application', __name__, template_folder='templates')
@@ -16,9 +31,16 @@ application_blueprint = Blueprint('application', __name__, template_folder='temp
 @application_blueprint.route('/')
 @application_blueprint.route('/index')
 def index():
+    context = get_defaults()
+
     movies = Movie.query.order_by(Movie.date.desc()).all()
 
-    return render_with_defaults("index.html", movies=movies, title='Home')
+    context.update({
+        'movies': movies,
+        'title': 'Home'
+    })
+
+    return render_template("index.html", **context)
 
 
 @application_blueprint.route('/profile/', methods=['GET', 'POST'])
@@ -33,12 +55,19 @@ def profile(profile_id='', operation=''):
 
 
 def get_profile(profile_id='', operation=''):
-
+    context = get_defaults()
     path = '/profile/'
     form = ProfileForm()
 
     if operation == 'new':
-        return render_template("object_detail.html", path=path, form=form, action=path)
+
+        context.update({
+            'path': path,
+            'form': form,
+            'action': path
+        })
+
+        return render_template("profile_detail.html", **context)
 
     if operation == 'delete':
         obj = Profile.query.get(profile_id)
@@ -52,10 +81,23 @@ def get_profile(profile_id='', operation=''):
         form = ProfileForm(obj=profile)
 
         action = request.path
-        return render_template("object_detail.html", path=path, form=form, action=action)
+
+        context.update({
+            'path': path,
+            'form': form,
+            'action': path
+        })
+
+        return render_template("profile_detail.html", **context)
 
     profiles = Profile.query.all()
-    return render_template("profile_list.html", path=path, obj=profiles)
+
+    context.update({
+        'path': path,
+        'obj': profiles,
+    })
+
+    return render_template("profile_list.html", **context)
 
 
 def post_profile(profile_id=''):

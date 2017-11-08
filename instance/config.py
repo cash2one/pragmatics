@@ -1,6 +1,7 @@
 class Config(object):
     """Parent configuration class."""
     DEBUG = False
+    TESTING = False
     CSRF_ENABLED = True
     SECRET_KEY = 'awdn1kj2n5n1ol!@/ai1jd9a!@#!5'
     SQLALCHEMY_DATABASE_URI = "postgresql://moviesadmin:movies2017pragmatics@harzo.clpzr9a1ooaz.us-east-2.rds.amazonaws.com/movsug"

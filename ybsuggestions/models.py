@@ -37,8 +37,9 @@ class Movie(db.Model):
     def to_json(self):
         return {'id': self.id,
                 'title': self.name,
-                'rating': self.name,
-                'genres_ids': [genre.id for genre in self.genres]}
+                'rating': self.rating,
+                'cover': self.cover,
+                'genres': {genre.id: genre.name for genre in self.genres}}
 
 
 profile_whitelist = db.Table('profile_whitelist',
