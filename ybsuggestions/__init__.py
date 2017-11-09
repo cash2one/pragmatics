@@ -1,7 +1,6 @@
 import os
+import schedule
 from threading import Thread
-import asyncio
-import platform
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -26,20 +25,17 @@ migrate = Migrate(app, db)
 from ybsuggestions.application.views import application_blueprint
 app.register_blueprint(application_blueprint)
 
-import ybsuggestions.application.apis
-from ybsuggestions.crawler.jobs import job_check_new_movies
+from ybsuggestions.application.apis import apis_blueprint
+app.register_blueprint(apis_blueprint)
 
+if not app.config['DEBUG']:
+    from ybsuggestions.crawler.jobs import job_check_new_movies, run_schedule
 
-@app.before_first_request
-def run_movies_updater():
-    if not app.config['DEBUG']:
-        print('Movies update loop started')
+    schedule.every(12).hours.do(job_check_new_movies)
+    print('"Check for new movies" job scheduled')
+    t = Thread(target=run_schedule)
+    t.start()
 
-        try:
-            t = Thread(target=job_check_new_movies)
-            t.start()
-        except KeyboardInterrupt as e:
-            print('Thread interrupted:', e)
 
 
 

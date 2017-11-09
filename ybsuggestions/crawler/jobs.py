@@ -1,6 +1,7 @@
 import platform
 import requests
 import asyncio
+import schedule
 import time
 from ybsuggestions.crawler.ybparser import YBParser
 from ybsuggestions.crawler.moviedao import MovieDAO
@@ -43,18 +44,25 @@ def _is_server_online():
     return True
 
 
+def run_schedule():
+    time.sleep(60)
+    print('Schedule started')
+    while 1:
+        if not _is_server_online:
+            return
+
+        schedule.run_pending()
+
+
 # JOBS
 
 def job_check_new_movies(chunksize=0):
-    if not _is_server_online():
-        return
 
     moviedaos = _create_moviedaos()
 
     if not moviedaos:
-        print('YourBit response is empty. Will try again in 5 minutes.')
-        time.sleep(1 * 5 * 60)
-        return job_check_new_movies(chunksize)
+        print('YourBit response is empty.')
+        return
 
     print('Movies update started')
     tasks = []
@@ -77,10 +85,9 @@ def job_check_new_movies(chunksize=0):
             loop.close()
 
     _add_movies(moviedaos)
-    print('Movies update ended. Waiting 12 hours...')
-    time.sleep(12 * 60 * 60)
+    print('Movies update ended.')
 
-    return job_check_new_movies(chunksize)
+    return
 
 
 # ASYNC FUNCTIONS

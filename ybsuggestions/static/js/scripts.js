@@ -32,4 +32,20 @@ $( document ).ready(function() {
         location.reload();
     });
 
+    $('.rate_down').click(function(){
+        var profile_id = $('#profile_select').find('option').eq(0).attr('value');
+        var movie_id = $(this).attr('data-movie-id');
+
+        $.ajax({
+            method: "POST",
+            url: dismiss_suggestion_url,
+            data: { profile_id: profile_id, movie_id: movie_id }
+        })
+        .done(function( msg ) {
+            console.log( "Data Saved: " + msg );
+        });
+
+        $(this).addClass("rated_down");
+    });
+
 });

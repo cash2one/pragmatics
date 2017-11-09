@@ -64,12 +64,24 @@ profile_blacklist = db.Table('profile_blacklist',
 class Profile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
+    min_rating = db.Column(db.Float(2))
     whitelist = db.relationship('Genre', secondary=profile_whitelist,
                                 lazy='subquery',
                                 backref=db.backref('whitelist', lazy=True))
     blacklist = db.relationship('Genre', secondary=profile_blacklist,
                                 lazy='subquery',
                                 backref=db.backref('blacklist', lazy=True))
+    rated_suggestions = db.relationship('ProfileSuggestion', backref='profile', lazy=True)
 
     def __repr__(self):
         return '<Profile %r>' % (self.name)
+
+
+class ProfileSuggestion(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'), nullable=False)
+    profile_id = db.Column(db.Integer, db.ForeignKey('profile.id'), nullable=False)
+    was_liked = db.Column(db.Boolean, default=False, nullable=False)
+
+    def __repr__(self):
+        return '<ProfileSuggestion %r>' % (self.id)

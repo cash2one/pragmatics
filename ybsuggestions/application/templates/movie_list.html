@@ -5,19 +5,19 @@
         <div class="large-12">
             <table>
                 <tr>
-                    <th>#</th>
+                    <th style="width: 20px">#</th>
                     <th>Name</th>
                     <th>IMDb</th>
                     <th>Updated</th>
-                    <th>Actions</th>
+                    <th style="width: 50px">Actions</th>
                 </tr>
                 {% for item in obj %}
                     <tr>
-                        <td>#</td>
+                        <td>{{ item.id }}</td>
                         <td><a href="{{ url_for('application.movie') }}{{ item.id }}" title="{{ item.name }}">{{ item.name }}</a></td>
                         <td>{{ item.rating }}</td>
                         <td>{{ item.date }}</td>
-                        <td><a class="pure-button pure-button-primary button blue" href="{{path + item.id|string}}"></a></td>
+                        <td><a class="pure-button pure-button-primary button blue" href="{{path + item.id|string}}">Edit</a></td>
                     </tr>
                 {% endfor %}
             </table>

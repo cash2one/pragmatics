@@ -1,7 +1,7 @@
 from flask import flash, url_for, redirect, render_template, request, Blueprint
 import requests
 import json
-from ybsuggestions.models import Profile, Movie
+from ybsuggestions.models import Profile, Movie, Genre
 from ybsuggestions.forms import ProfileForm, MovieForm
 from ybsuggestions import db
 
@@ -33,7 +33,12 @@ application_blueprint = Blueprint('application', __name__, template_folder='temp
 def index():
     context = get_defaults()
 
-    movies = Movie.query.order_by(Movie.date.desc()).all()
+    movies = Movie.query.filter(
+        ~Movie.genres.any(
+            Genre.id.in_(
+                [g.id for g in context['current_profile'].blacklist])),
+        Movie.rating >= context['current_profile'].min_rating
+    ).order_by(Movie.date.desc())
 
     context.update({
         'movies': movies,
@@ -85,7 +90,7 @@ def get_profile(profile_id='', operation=''):
         context.update({
             'path': path,
             'form': form,
-            'action': path
+            'action': action
         })
 
         return render_template("profile_detail.html", **context)
@@ -117,55 +122,53 @@ def post_profile(profile_id=''):
     return redirect(path)
 
 
-@application_blueprint.route('/movie/', methods=['GET', 'POST'])
-@application_blueprint.route('/movie/<int:movie_id>/', methods=['GET', 'POST'])
-# @application_blueprint.route('/profile/<operation>/', methods=['GET'])
-# @application_blueprint.route('/profile/<operation>/<int:movie_id>', methods=['GET'])
-def movie(movie_id='', operation=''):
-    if request.method == 'POST':
-        return post_movie(movie_id=movie_id)
-    else:
-        return get_movie(movie_id=movie_id, operation=operation)
-    
-    
-def get_movie(movie_id='', operation=''):
-
-    path = '/movie/'
-    form = MovieForm()
-
-    if operation == 'new':
-        return render_template("object_detail.html", path=path, form=form, action=path)
-
-    if operation == 'delete':
-        obj = Movie.query.get(movie_id)
-        db.session.delete(obj)
-        db.session.commit()
-        return redirect(path)
-
-    if movie_id:
-        movie = Movie.query.get(movie_id)
-
-        form = MovieForm(obj=movie)
-
-        action = request.path
-        return render_template("object_detail.html", path=path, form=form, action=action)
-
-    movies = Movie.query.all()
-    return render_template("movie_list.html", path=path, obj=movies)
-
-
-def post_movie(movie_id=''):
-    path = '/movie/'
-
-    if movie_id:
-        movie = Movie.query.get(movie_id)
-    else:
-        movie = Movie()
-
-    form = MovieForm(request.form)
-    form.populate_obj(movie)
-
-    db.session.add(movie)
-    db.session.commit()
-
-    return redirect(path)
+# @application_blueprint.route('/movie/', methods=['GET', 'POST'])
+# @application_blueprint.route('/movie/<int:movie_id>/', methods=['GET', 'POST'])
+# def movie(movie_id='', operation=''):
+#     if request.method == 'POST':
+#         return post_movie(movie_id=movie_id)
+#     else:
+#         return get_movie(movie_id=movie_id, operation=operation)
+#
+#
+# def get_movie(movie_id='', operation=''):
+#
+#     path = '/movie/'
+#     form = MovieForm()
+#
+#     if operation == 'new':
+#         return render_template("object_detail.html", path=path, form=form, action=path)
+#
+#     if operation == 'delete':
+#         obj = Movie.query.get(movie_id)
+#         db.session.delete(obj)
+#         db.session.commit()
+#         return redirect(path)
+#
+#     if movie_id:
+#         movie = Movie.query.get(movie_id)
+#
+#         form = MovieForm(obj=movie)
+#
+#         action = request.path
+#         return render_template("object_detail.html", path=path, form=form, action=action)
+#
+#     movies = Movie.query.all()
+#     return render_template("movie_list.html", path=path, obj=movies)
+#
+#
+# def post_movie(movie_id=''):
+#     path = '/movie/'
+#
+#     if movie_id:
+#         movie = Movie.query.get(movie_id)
+#     else:
+#         movie = Movie()
+#
+#     form = MovieForm(request.form)
+#     form.populate_obj(movie)
+#
+#     db.session.add(movie)
+#     db.session.commit()
+#
+#     return redirect(path)

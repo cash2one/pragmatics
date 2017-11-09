@@ -8,6 +8,7 @@ body, html{
 
 .suggestions table{
     border-collapse: collapse;
+    width: 100%;
 }
 
 .suggestions tbody{
@@ -20,4 +21,62 @@ body, html{
 
 .suggestions table .thumbnail{
     margin: 0;
+}
+
+.suggestions .title{
+    font-weight: bold;
+    font-size: 14px;
+    height: 50px;
+    float: left;
+    line-height: 20px;
+}
+
+.suggestions .rating{
+    font-size: 14px;
+}
+
+.suggestions .genres{
+    float: left;
+    height: 90px;
+}
+
+.suggestions .rate{
+    text-align: center;
+}
+
+.suggestions .rate_base{
+    padding: 0 20px;
+    font-size: 30px;
+    margin: 0;
+    display: inline-block;
+    color: grey;
+}
+
+.suggestions .rate_up:hover{
+    color: green;
+}
+
+.suggestions .rate_down:hover{
+    color: red;
+}
+
+.suggestions .rated_up{
+    color: green !important;
+}
+
+.suggestions .rated_down{
+    color: red !important;
+}
+
+
+.select_genres select{
+    height: 150px;
+}
+
+.object-list table{
+    width: 100%;
+}
+
+.object-list table th{
+    text-align: left;
 }

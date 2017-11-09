@@ -15,16 +15,22 @@
                    <td class="thumb" rowspan="3" width="94">
                        <img class="thumbnail" src="{% if movie.cover %}{{movie.cover}}{% else %}http://placehold.it/94x140{% endif %}">
                    </td>
-                    <td>{{movie.name}}</td>
+                    <td class="title">{{movie.name}}</td>
                 </tr>
                 <tr>
-                    <td>IMDb: {% if movie.rating > 0 %}{{movie.rating}}{% else %}N/A{% endif %}</td>
+                    <td class="rating">IMDb: {% if movie.rating > 0 %}{{movie.rating}}{% else %}N/A{% endif %}</td>
                 </tr>
                 <tr>
-                    <td>
+                    <td class="genres">
                     {% for genre in movie.genres %}
-                        {{genre.name}}
+                        <span class="radius{% if genre not in current_profile.whitelist %} secondary{% endif %} label">{{genre.name}}</span>
                     {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="rate" colspan="2">
+                        <a href="#" data-movie-id="{{movie.id}}" class="rate_base rate_down"><i class="fi-like medium"></i></a>
+                        <a href="#" data-movie-id="{{movie.id}}" class="rate_base rate_up"><i class="fi-dislike medium"></i></a>
                     </td>
                 </tr>
             </table>

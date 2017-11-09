@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 
+{% block primary %}
+    <div class="row column">
+    <h3>Manage profile {% if form.name %}{{ form.name.value }}{% endif %}</h3>
+    </div>
+{% endblock %}
+
 {% block content %}
     <form action="{{ action }}" method="post">
     {{ form.hidden_tag() }}
@@ -9,10 +15,14 @@
             {{ form.name }}
         </div>
         <div class="large-12 columns">
+            <label>Minimal rating:</label>
+            {{ form.min_rating }}
+        </div>
+        <div class="large-12 columns select_genres">
             <label>Whitelist:</label>
             {{ form.whitelist }}
         </div>
-        <div class="large-12 columns">
+        <div class="large-12 columns select_genres">
             <label>Blacklist:</label>
             {{ form.blacklist }}
         </div>

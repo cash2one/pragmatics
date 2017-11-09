@@ -5,15 +5,18 @@
         <div class="large-12">
             <table>
                 <tr>
-                    <th>#</th>
+                    <th style="width: 20px">#</th>
                     <th>Name</th>
-                    <th>Actions</th>
+                    <th style="width: 200px">Actions</th>
                 </tr>
                 {% for item in obj %}
                     <tr>
-                        <td>#</td>
+                        <td>{{ item.id }}</td>
                         <td><a href="{{ url_for('application.profile') }}{{ item.id }}" title="{{ item.name }}">{{ item.name }}</a></td>
-                        <td><a class="pure-button pure-button-primary button blue" href="{{path + item.id|string}}"></a></td>
+                        <td>
+                            <a class="button blue" href="{{path + item.id|string}}">Edit</a>
+                            <a class="button red" href="{{path + 'delete/' + item.id|string}}">Delete</a>
+                        </td>
                     </tr>
                 {% endfor %}
             </table>

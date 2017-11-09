@@ -10,6 +10,7 @@
     <title>MovieSuggestions</title>
     {% endif %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/foundation.min.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/foundation-icons.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 <body>
@@ -33,7 +34,6 @@
                     <ul class="vertical menu">
                       <li><a href="{{ url_for('application.index') }}">Home</a></li>
                       <li><a href="{{ url_for('application.profile') }}">Profiles</a></li>
-                      <li><a href="{{ url_for('application.movie') }}">All movies</a></li>
                     </ul>
                 </div>
             </div>
@@ -65,6 +65,8 @@
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
     <script>
         var profile_url = '{{ url_for('application.profile') }}';
+        var dismiss_suggestion_url = '{{ url_for('apis.post_dismiss_suggestion') }}';
+        var good_suggestion_url = '{{ url_for('apis.post_good_suggestion') }}';
     </script>
 </body>
 </html>
