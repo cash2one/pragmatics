@@ -6,3 +6,4 @@ feedparser
 pytest
 requests
 schedule
+psycopg2

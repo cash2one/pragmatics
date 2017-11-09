@@ -15,4 +15,6 @@ RUN git clone https://github.com/alberanid/imdbpy.git \
 		&& cd ../ \
 		&& rm -r imdbpy
 
+EXPOSE 80
+
 CMD ["python", "run.py"]
