@@ -27,30 +27,41 @@ def get_suggestions(profile_id):
     return jsonify({'movies': json_movies})
 
 
-def create_profile_suggestion(profile_id, movie_id, was_liked):
+def update_profile_suggestions(profile_id, movie_id, was_liked):
 
-    profile_suggestion = ProfileSuggestion()
+    profile_suggestion = ProfileSuggestion.query.filter_by(
+        profile_id=profile_id,
+        movie_id=movie_id
+    ).first()
 
-    profile_suggestion.profile_id = profile_id
-    profile_suggestion.movie_id = movie_id
-    profile_suggestion.was_liked = was_liked
+    if not profile_suggestion:
 
-    db.session.add(profile_suggestion)
-    db.session.commit()
+        profile_suggestion = ProfileSuggestion()
+
+        profile_suggestion.profile_id = profile_id
+        profile_suggestion.movie_id = movie_id
+        profile_suggestion.was_liked = was_liked
+
+        db.session.add(profile_suggestion)
+        db.session.commit()
+
+    elif profile_suggestion.was_liked != was_liked:
+        profile_suggestion.was_liked = was_liked
+        db.session.commit()
 
     return profile_suggestion.id
 
 
-def handle_profile_suggestion_api(json_data):
+def handle_profile_suggestion_api(data):
 
     try:
-        profile_id = json_data['profile_id']
-        movie_id = json_data['movie_id']
-        was_liked = json_data['was_liked']
+        profile_id = data['profile_id']
+        movie_id = data['movie_id']
+        was_liked = data['was_liked']
     except KeyError:
         return jsonify({'status': 'failure', 'message': 'KeyError. Provided data are corrupted.'})
 
-    id = create_profile_suggestion(profile_id, movie_id, was_liked)
+    id = update_profile_suggestions(profile_id, movie_id, was_liked)
 
     if id:
         return jsonify({'status': 'success', 'id': id})
@@ -60,19 +71,18 @@ def handle_profile_suggestion_api(json_data):
 
 @apis_blueprint.route('/post_dismiss_suggestion', methods=['POST'])
 def post_dismiss_suggestion():
-    request.get_data()
-    data = request.data
-    data_dict = json.loads(data)
-    data_dict['was_liked'] = False
 
-    return handle_profile_suggestion_api(data_dict)
+    data = request.form.to_dict()
+
+    data['was_liked'] = False
+
+    return handle_profile_suggestion_api(data)
 
 
 @apis_blueprint.route('/post_good_suggestion', methods=['POST'])
 def post_good_suggestion():
-    request.get_data()
-    data = request.data
-    data_dict = json.loads(data)
-    data_dict['was_liked'] = True
 
-    return handle_profile_suggestion_api(data_dict)
+    data = request.form.to_dict()
+    data['was_liked'] = True
+
+    return handle_profile_suggestion_api(data)

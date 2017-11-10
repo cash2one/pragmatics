@@ -4,6 +4,9 @@ from ptn import ptn
 
 class YBParser:
     def __init__(self, feed_url):
+        if not feed_url or feed_url == '':
+            raise ValueError("Corrupted feed url")
+
         self._feed_url = feed_url
 
     @staticmethod
@@ -16,7 +19,10 @@ class YBParser:
         except Exception as e:
             print('Feedparser error' + e)
 
-        return feed
+        if feed.entries:
+            return feed
+        else:
+            return {}
 
     @staticmethod
     def get_torrents_titles(feed):

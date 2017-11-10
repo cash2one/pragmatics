@@ -3,6 +3,8 @@ import requests
 import asyncio
 import schedule
 import time
+import sys
+from flask import url_for
 from ybsuggestions.crawler.ybparser import YBParser
 from ybsuggestions.crawler.moviedao import MovieDAO
 from ybsuggestions import app
@@ -36,8 +38,15 @@ def _add_movies(moviedaos):
 
 def _is_server_online():
     try:
-        r = requests.get('http://127.0.0.1:5000/')
-    except Exception as e:
+        url = 'http://localhost:5000'
+        print('Checking connection with server: %s' % url)
+        r = requests.get(url)
+
+        if r.status_code != 200:
+            print('Flask server is not responding. Loop stopped.')
+            return False
+
+    except ConnectionError as e:
         print('Flask server is not responding. Loop stopped.')
         return False
 
@@ -46,17 +55,19 @@ def _is_server_online():
 
 def run_schedule():
     time.sleep(60)
+    if not _is_server_online():
+        sys.exit()
+
     print('Schedule started')
     while 1:
-        if not _is_server_online:
-            return
-
         schedule.run_pending()
 
 
 # JOBS
 
-def job_check_new_movies(chunksize=0):
+def job_check_new_movies():
+    if not _is_server_online():
+        sys.exit()
 
     moviedaos = _create_moviedaos()
 
@@ -69,20 +80,16 @@ def job_check_new_movies(chunksize=0):
     for dao_idx in range(len(moviedaos)):
         tasks.append(update_imdb_info(moviedaos[dao_idx], dao_idx))
 
-    chunks = [tasks] if not chunksize else _create_chunks(tasks, chunksize)
+    if platform.system() == 'Windows':
+        loop = asyncio.ProactorEventLoop()
+        asyncio.set_event_loop(loop)
+    else:
+        loop = asyncio.get_event_loop()
 
-    for no, chunk in enumerate(chunks):
-        # print('Chunk: %d' % (no + 1))
-        if platform.system() == 'Windows':
-            loop = asyncio.ProactorEventLoop()
-            asyncio.set_event_loop(loop)
-        else:
-            loop = asyncio.get_event_loop()
-
-        try:
-            loop.run_until_complete(asyncio.gather(*chunk))
-        finally:
-            loop.close()
+    try:
+        loop.run_until_complete(asyncio.gather(*tasks))
+    finally:
+        loop.close()
 
     _add_movies(moviedaos)
     print('Movies update ended.')
@@ -116,12 +123,7 @@ async def call_imdbpy(movie_title):
 
 async def update_imdb_info(moviedao, dao_idx=None):
 
-    # if dao_idx is not None:
-    #     print('Update started for idx: %d' % dao_idx)
-
     imdbpy_output = await call_imdbpy(moviedao.movie_title)
-
-    # imdbpy_output = imdbpy_output
 
     if imdbpy_output == 'IMDBFoundNothingException':
         moviedao.imdb_info = []
@@ -135,9 +137,6 @@ async def update_imdb_info(moviedao, dao_idx=None):
         imdb_info[2] = [g.strip(" \'") for g in imdb_info[2].strip('[]').split(',')]
 
     moviedao.imdb_info = imdb_info
-
-    # if dao_idx is not None:
-    #     print('Update ended for idx: %d' % dao_idx)
 
     return True
 

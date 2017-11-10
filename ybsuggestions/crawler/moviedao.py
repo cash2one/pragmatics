@@ -2,14 +2,11 @@ from ybsuggestions.models import Movie, Genre
 from ybsuggestions import db
 
 
-class IMDBFoundNothingException(Exception):
-    def __init___(self, arguments):
-        Exception.__init__(self, "IMDBPy found nothing using: ".format(arguments))
-        self.arguments = arguments
-
-
 class MovieDAO:
     def __init__(self, movie_title):
+        if not movie_title or movie_title == '':
+            raise ValueError("Corrupted movie title")
+
         self.movie_title = movie_title
         self.imdb_info = None
         self.movie = None

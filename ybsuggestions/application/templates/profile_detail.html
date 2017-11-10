@@ -31,4 +31,25 @@
         </div>
 	</div>
     </form>
+    <div class="row">
+        <div class="large-12">
+            <table style="width: 100%">
+                <caption><h5>Dismissed suggestions</h5></caption>
+                <tr>
+                    <th style="width: 20px">#</th>
+                    <th>Movie id</th>
+                    <th style="width: 100px">Actions</th>
+                </tr>
+                {% for suggestion in dismissed %}
+                    <tr>
+                        <td>{{ suggestion.0 }}</td>
+                        <td>{{ suggestion.1 }}</td>
+                        <td>
+                            <a class="button red" href="{{ url_for('application.profile_suggestion', operation='delete', profile_id=current_profile.id, ps_id=suggestion.0) }}">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
 {% endblock %}

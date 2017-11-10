@@ -10,7 +10,6 @@ function setProfileCookie(profile_id){
 
 function profileCookieManager(){
     var profileCookie = Cookies.get('profile_id');
-    console.log(profileCookie);
 
     if(profileCookie === undefined){
         var profile_id = $('#profile_select').find('option').eq(0).attr('value');
@@ -18,11 +17,43 @@ function profileCookieManager(){
     }
 }
 
+function rateUpAction(elem){
+    $(elem).addClass("rated_up").removeClass("rate_up");
+}
+
+function rateDownAction(elem, movie_id){
+    $(elem).addClass("rated_down").removeClass("rate_down");
+    $('#movie-' + movie_id).fadeOut(500, function(){
+        $(this).remove();
+    });
+}
+
+function rateAjaxConnection(elem, url, rate_up){
+    var profile_id = $('#profile_select').find(":selected").attr('value');
+    var movie_id = $(elem).attr('data-movie-id');
+
+    var success = false;
+    $.ajax({
+        method: "POST",
+        url: url,
+        data: { profile_id: profile_id, movie_id: movie_id },
+        success : function (response)
+        {
+            success = response['status'] === 'success' ? true : false;
+            if(success)
+                if(rate_up)
+                    rateUpAction(elem);
+                else
+                    rateDownAction(elem, movie_id);
+        }
+
+    });
+}
+
 $( document ).ready(function() {
     profileCookieManager();
 
     $('.add_profile').click(function(){
-        console.log('click');
         window.location.replace(profile_url + 'new');
     });
 
@@ -33,19 +64,11 @@ $( document ).ready(function() {
     });
 
     $('.rate_down').click(function(){
-        var profile_id = $('#profile_select').find('option').eq(0).attr('value');
-        var movie_id = $(this).attr('data-movie-id');
+        rateAjaxConnection(this, dismiss_suggestion_url, false);
+    });
 
-        $.ajax({
-            method: "POST",
-            url: dismiss_suggestion_url,
-            data: { profile_id: profile_id, movie_id: movie_id }
-        })
-        .done(function( msg ) {
-            console.log( "Data Saved: " + msg );
-        });
-
-        $(this).addClass("rated_down");
+    $('.rate_up').click(function(){
+        rateAjaxConnection(this, good_suggestion_url, true);
     });
 
 });

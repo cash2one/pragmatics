@@ -1,19 +1,42 @@
 import pytest
+import os
+os.environ["APP_SETTINGS"] = "testing"
 from ybsuggestions.crawler.moviedao import MovieDAO
 from ybsuggestions.crawler.ybparser import YBParser
 from ybsuggestions.crawler.jobs import update_imdb_info
-from ybsuggestions import app
+from instance.config import Config
 
 
 @pytest.fixture()
-def movie_titles():
-    yb_parser = YBParser(app.config['YOURBIT_MOVIES_URL'])
-    feed = yb_parser.parse_feed()
-    torrents_titles = yb_parser.get_torrents_titles(feed)
+def parser():
+    yb_parser = YBParser(Config.YOURBIT_MOVIES_URL)
 
-    movie_titles = yb_parser.get_movies_titles(torrents_titles)
+    return yb_parser
+
+
+@pytest.fixture()
+def movie_titles(parser):
+    feed = parser.parse_feed()
+    torrents_titles = parser.get_torrents_titles(feed)
+
+    movie_titles = parser.get_movies_titles(torrents_titles)
 
     return movie_titles
+
+
+def test_moviedao_init_raise_exception_for_none_title():
+    with pytest.raises(ValueError) as e:
+        moviedao = MovieDAO(None)
+    assert "Corrupted movie title" in str(e.value)
+
+
+def test_moviedao_init_raise_exception_for_empty_title():
+    with pytest.raises(ValueError) as e:
+        moviedao = MovieDAO('')
+    assert "Corrupted movie title" in str(e.value)
+
+
+
 
 
 def test_moviedaos_are_inited_correctly(movie_titles):

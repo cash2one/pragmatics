@@ -2,14 +2,15 @@
 
 {% block primary %}
     <div class="row column">
-    <h3>Hello! There are some fresh movies suggestions for you!</h3>
+    <h3>Hello! We have some fresh movies for you!</h3>
     </div>
 {% endblock %}
 
 {% block content %}
     <div class="suggestions row small-up-2 medium-up-3 large-up-4">
     {% for movie in movies %}
-        <div class="column">
+        {% if movie.id not in dismissed_movies %}
+        <div id="movie-{{ movie.id }}" class="column">
             <table class="unstriped">
                 <tr>
                    <td class="thumb" rowspan="3" width="94">
@@ -29,12 +30,17 @@
                 </tr>
                 <tr>
                     <td class="rate" colspan="2">
-                        <a href="#" data-movie-id="{{movie.id}}" class="rate_base rate_down"><i class="fi-like medium"></i></a>
-                        <a href="#" data-movie-id="{{movie.id}}" class="rate_base rate_up"><i class="fi-dislike medium"></i></a>
+                        <a href="#" data-movie-id="{{movie.id}}" class="rate_base rate_down">
+                            <i class="fi-dislike medium"></i>
+                        </a>
+                        <a href="#" data-movie-id="{{movie.id}}" class="rate_base{% if movie.id in liked_movies %} rated_up{% else %} rate_up{% endif %}">
+                            <i class="fi-like medium"></i>
+                        </a>
                     </td>
                 </tr>
             </table>
         </div>
+        {% endif %}
     {% endfor %}
     </div>
 {% endblock %}

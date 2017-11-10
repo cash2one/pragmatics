@@ -1,7 +1,7 @@
 import os
 import schedule
 from threading import Thread
-from flask import Flask
+from flask import Flask, url_for
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from instance.config import app_config
@@ -32,7 +32,7 @@ if not app.config['DEBUG']:
     from ybsuggestions.crawler.jobs import job_check_new_movies, run_schedule
 
     schedule.every(12).hours.do(job_check_new_movies)
-    print('"Check for new movies" job scheduled')
+    print('"Check for new movies" job scheduled, every 12 hours')
     t = Thread(target=run_schedule)
     t.start()
 

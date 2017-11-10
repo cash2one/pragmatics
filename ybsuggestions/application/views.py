@@ -1,8 +1,6 @@
-from flask import flash, url_for, redirect, render_template, request, Blueprint
-import requests
-import json
-from ybsuggestions.models import Profile, Movie, Genre
-from ybsuggestions.forms import ProfileForm, MovieForm
+from flask import redirect, render_template, request, Blueprint
+from ybsuggestions.models import Profile, Movie, Genre, ProfileSuggestion
+from ybsuggestions.forms import ProfileForm
 from ybsuggestions import db
 
 
@@ -42,7 +40,9 @@ def index():
 
     context.update({
         'movies': movies,
-        'title': 'Home'
+        'title': 'Home',
+        'dismissed_movies': [s.movie_id for s in context['current_profile'].rated_suggestions if not s.was_liked],
+        'liked_movies': [s.movie_id for s in context['current_profile'].rated_suggestions if s.was_liked]
     })
 
     return render_template("index.html", **context)
@@ -87,10 +87,18 @@ def get_profile(profile_id='', operation=''):
 
         action = request.path
 
+        dismissed_suggestions = [s for s in profile.rated_suggestions if not s.was_liked]
+
+        dismissed = []
+        if dismissed_suggestions:
+            for suggestion in dismissed_suggestions:
+                dismissed.append((suggestion.id, Movie.query.get(suggestion.movie_id).name))
+
         context.update({
             'path': path,
             'form': form,
-            'action': action
+            'action': action,
+            'dismissed': dismissed
         })
 
         return render_template("profile_detail.html", **context)
@@ -122,53 +130,15 @@ def post_profile(profile_id=''):
     return redirect(path)
 
 
-# @application_blueprint.route('/movie/', methods=['GET', 'POST'])
-# @application_blueprint.route('/movie/<int:movie_id>/', methods=['GET', 'POST'])
-# def movie(movie_id='', operation=''):
-#     if request.method == 'POST':
-#         return post_movie(movie_id=movie_id)
-#     else:
-#         return get_movie(movie_id=movie_id, operation=operation)
-#
-#
-# def get_movie(movie_id='', operation=''):
-#
-#     path = '/movie/'
-#     form = MovieForm()
-#
-#     if operation == 'new':
-#         return render_template("object_detail.html", path=path, form=form, action=path)
-#
-#     if operation == 'delete':
-#         obj = Movie.query.get(movie_id)
-#         db.session.delete(obj)
-#         db.session.commit()
-#         return redirect(path)
-#
-#     if movie_id:
-#         movie = Movie.query.get(movie_id)
-#
-#         form = MovieForm(obj=movie)
-#
-#         action = request.path
-#         return render_template("object_detail.html", path=path, form=form, action=action)
-#
-#     movies = Movie.query.all()
-#     return render_template("movie_list.html", path=path, obj=movies)
-#
-#
-# def post_movie(movie_id=''):
-#     path = '/movie/'
-#
-#     if movie_id:
-#         movie = Movie.query.get(movie_id)
-#     else:
-#         movie = Movie()
-#
-#     form = MovieForm(request.form)
-#     form.populate_obj(movie)
-#
-#     db.session.add(movie)
-#     db.session.commit()
-#
-#     return redirect(path)
+@application_blueprint.route('/profile_suggestion/<int:profile_id>/<operation>/<int:ps_id>', methods=['GET'])
+def profile_suggestion(profile_id='', ps_id='', operation=''):
+    path = '/profile/%d' % profile_id
+
+    if operation == 'delete':
+        ps = ProfileSuggestion.query.get(ps_id)
+
+        if ps:
+            db.session.delete(ps)
+            db.session.commit()
+
+    return redirect(path)
