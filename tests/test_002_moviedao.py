@@ -1,5 +1,6 @@
 import pytest
 import os
+from datetime import datetime
 os.environ["APP_SETTINGS"] = "testing"
 from ybsuggestions.crawler.moviedao import MovieDAO
 from ybsuggestions.crawler.ybparser import YBParser
@@ -36,7 +37,21 @@ def test_moviedao_init_raise_exception_for_empty_title():
     assert "Corrupted movie title" in str(e.value)
 
 
+def test_moviedao_add_genre_returns_object_with_id():
+    genre_name = datetime.now().strftime("Test %Y-%m-%d %H:%M:%S.%f")
 
+    genre = MovieDAO.add_genre(genre_name)
+
+    assert genre.id
+
+
+def test_moviedao_add_genre_returns_none_for_duplicate():
+    genre_name = datetime.now().strftime("Test %Y-%m-%d %H:%M:%S.%f")
+
+    MovieDAO.add_genre(genre_name)
+    genre = MovieDAO.add_genre(genre_name)
+
+    assert not genre
 
 
 def test_moviedaos_are_inited_correctly(movie_titles):

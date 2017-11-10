@@ -25,9 +25,9 @@ class MovieDAO:
                 else:
                     raise Exception('Movie already in database')
             else:
-                raise Exception('IMDB info is empty')
+                raise AttributeError('IMDB info is empty')
         else:
-            raise Exception('IMDB info is missing')
+            raise AttributeError('IMDB info is missing')
 
     def add_movie(self):
         if self.movie:
@@ -62,9 +62,14 @@ class MovieDAO:
     @staticmethod
     def add_genre(genre_name):
         genre = Genre(name=genre_name)
-        db.session.add(genre)
-        db.session.commit()
 
-        print('New genre added to database: %s(#%d)' % (genre.name, genre.id))
-        return genre
+        try:
+            db.session.add(genre)
+            db.session.commit()
 
+            print('New genre added to database: %s(#%d)' % (genre.name, genre.id))
+            return genre
+        except Exception as e:
+            print('Genre already in database:', e)
+
+        return None
