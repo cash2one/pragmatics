@@ -25,7 +25,7 @@ class MovieDAO:
                 else:
                     raise Exception('Movie already in database')
             else:
-                raise AttributeError('IMDB info is empty')
+                raise AttributeError('IMDB info is corrupted')
         else:
             raise AttributeError('IMDB info is missing')
 
@@ -45,6 +45,7 @@ class MovieDAO:
 
     @staticmethod
     def fetch_movie_genres(genres_names):
+        genres_names = list(set(genres_names))
         genres = []
         for genre_name in genres_names:
 

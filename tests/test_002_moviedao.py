@@ -1,10 +1,10 @@
 import pytest
 import os
-from datetime import datetime
 os.environ["APP_SETTINGS"] = "testing"
+from datetime import datetime
 from ybsuggestions.crawler.moviedao import MovieDAO
 from ybsuggestions.crawler.ybparser import YBParser
-from ybsuggestions.crawler.jobs import update_imdb_info
+from ybsuggestions.models import Movie
 from instance.config import Config
 
 
@@ -23,6 +23,21 @@ def movie_titles(parser):
     movie_titles = parser.get_movies_titles(torrents_titles)
 
     return movie_titles
+
+
+@pytest.fixture()
+def moviedao():
+    movie_title = datetime.now().strftime("Title %Y-%m-%d %H:%M:%S.%f")
+    moviedao = MovieDAO(movie_title)
+
+    return moviedao
+
+
+@pytest.fixture()
+def moviedao_movie(moviedao):
+    moviedao.movie = Movie(name=moviedao.movie_title)
+
+    return moviedao
 
 
 def test_moviedao_init_raise_exception_for_none_title():
@@ -54,27 +69,85 @@ def test_moviedao_add_genre_returns_none_for_duplicate():
     assert not genre
 
 
-def test_moviedaos_are_inited_correctly(movie_titles):
-    moviedaos = [MovieDAO(title) for title in movie_titles]
+def test_moviedao_fetch_movie_genres_returns_objects_with_ids_related_to_given_names():
+    genres_names = []
+    for i in range(10):
+        genres_names.append(str(i) + 'Test ' + datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"))
 
-    assert len(movie_titles) == len(moviedaos)
+    genres = MovieDAO.fetch_movie_genres(genres_names)
 
-    for i, operator in enumerate(moviedaos):
-        assert operator.movie_title == movie_titles[i]
-        assert not operator.imdb_info
-        assert not operator.movie
-
-
-def test_moviedaos_should_have_movie_objects(movie_titles):
-    moviedaos = [MovieDAO(title) for title in movie_titles]
-
-    for dao_idx in range(len(moviedaos)):
-        update_imdb_info(moviedaos[dao_idx], dao_idx)
-
-    pass
+    for genre in genres:
+        assert genre.id
 
 
+def test_moviedao_fetch_movie_genres_returns_not_duplicated_objects():
+    genre_name = datetime.now().strftime("Test %Y-%m-%d %H:%M:%S.%f")
+    genres_names = [genre_name, genre_name]
 
-#testy: dodawanie, update, sprawdzenie unikatu, odrzucenie dodawania gdy imdb niekompletne
+    genres = MovieDAO.fetch_movie_genres(genres_names)
+
+    assert len(genres) == 1
+
+
+def test_moviedao_add_movie_updates_objects_id(moviedao_movie):
+    moviedao_movie.add_movie()
+
+    assert moviedao_movie.movie.id
+
+
+def test_moviedao_is_movie_duplicate_returns_true_for_duplicate(moviedao_movie):
+    moviedao_movie.add_movie()
+
+    assert MovieDAO.is_movie_duplicate(moviedao_movie.movie.name)
+
+
+def test_moviedao_is_movie_duplicate_returns_false_for_new_title():
+    movie_title = datetime.now().strftime("Movie %Y-%m-%d %H:%M:%S.%f")
+
+    assert not MovieDAO.is_movie_duplicate(movie_title)
+
+
+def test_moviedao_create_movie_creates_object_for_valid_imdb_info(moviedao):
+    imdb_info = [moviedao.movie_title, 5.0, ['Drama', 'Horror'], '']
+    moviedao.imdb_info = imdb_info
+
+    moviedao.create_movie()
+
+    assert moviedao.movie
+    assert moviedao.movie.name == imdb_info[0]
+    assert moviedao.movie.rating == imdb_info[1]
+    for genre in moviedao.movie.genres:
+        assert genre.name in imdb_info[2]
+    assert moviedao.movie.cover == imdb_info[3]
+
+
+def test_moviedao_create_movie_raise_exception_for_imdb_info_with_title_duplicate(moviedao_movie):
+    moviedao_movie.add_movie()
+
+    imdb_info = [moviedao_movie.movie_title, 5.0, ['Drama', 'Horror'], '']
+    moviedao_movie.imdb_info = imdb_info
+
+    with pytest.raises(Exception) as e:
+        moviedao_movie.create_movie()
+    assert "Movie already in database" in str(e.value)
+
+
+def test_moviedao_create_movie_raise_exception_for_corrupted_imdb_info(moviedao):
+    imdb_info = [5.0, '']
+    moviedao.imdb_info = imdb_info
+
+    with pytest.raises(AttributeError) as e:
+        moviedao.create_movie()
+    assert "IMDB info is corrupted" in str(e.value)
+
+
+def test_moviedao_create_movie_raise_exception_for_empty_imdb_info(moviedao):
+    imdb_info = []
+    moviedao.imdb_info = imdb_info
+
+    with pytest.raises(AttributeError) as e:
+        moviedao.create_movie()
+    assert "IMDB info is missing" in str(e.value)
+
 
 

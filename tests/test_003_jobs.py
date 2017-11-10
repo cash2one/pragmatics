@@ -1,71 +1,101 @@
 import pytest
+import os
 import asyncio
 import platform
-from ybsuggestions.crawler.jobs import update_imdb_info, call_imdbpy, job_check_new_movies
+os.environ["APP_SETTINGS"] = "testing"
+from ybsuggestions.crawler.jobs import _create_moviedaos, update_imdb_info, \
+    job_check_new_movies, _is_server_online, call_imdbpy
+from ybsuggestions.crawler.moviedao import MovieDAO
 from ybsuggestions.crawler.ybparser import YBParser
-from ybsuggestions.crawler.moviedao import MovieDAO, IMDBFoundNothingException
-from ybsuggestions import app
+from instance.config import Config
 
 
-# @pytest.fixture()
-# def movie_titles():
-#     yb_parser = YBParser(app.config['YOURBIT_MOVIES_URL'])
-#     feed = yb_parser.parse_feed()
-#     torrents_titles = yb_parser.get_torrents_titles(feed)
-#
-#     movie_titles = yb_parser.get_movies_titles(torrents_titles)
-#
-#     return movie_titles
-#
-#
-# def test_call_imdbpy_should_not_return_empty_output(movie_titles):
-#     tasks = []
-#     for title in range(len(movie_titles)):
-#         tasks.append(call_imdbpy(title))
-#
-#     if platform.system() == 'Windows':
-#         loop = asyncio.ProactorEventLoop()
-#         asyncio.set_event_loop(loop)
-#     else:
-#         loop = asyncio.get_event_loop()
-#
-#     try:
-#         results = loop.run_until_complete(asyncio.gather(*tasks))
-#     finally:
-#         loop.close()
-#
-#     for result in results:
-#         assert result is not None
-#         assert result != ''
-#
-#
-# def test_imdb_info_should_not_be_none_after_update(movie_titles):
-#     moviedaos = [MovieDAO(title) for title in movie_titles][:5]
-#
-#     tasks = []
-#     for dao_idx in range(len(moviedaos)):
-#         tasks.append(update_imdb_info(moviedaos[dao_idx], dao_idx))
-#
-#     if platform.system() == 'Windows':
-#         loop = asyncio.ProactorEventLoop()
-#         asyncio.set_event_loop(loop)
-#     else:
-#         loop = asyncio.get_event_loop()
-#
-#     try:
-#         loop.run_until_complete(asyncio.gather(*tasks))
-#     finally:
-#         loop.close()
-#
-#     for dao in moviedaos:
-#         assert dao.imdb_info is not None
-#         assert dao.imdb_info != ''
+@pytest.fixture()
+def loop():
+    if platform.system() == 'Windows':
+        loop = asyncio.ProactorEventLoop()
+        asyncio.set_event_loop(loop)
+    else:
+        loop = asyncio.get_event_loop()
+
+    return loop
 
 
-def test_moviedaos_should_have_movie_objects_with_id():
+def test_jobs_create_moviedaos_init_moviedaos_correctly():
+    moviedaos = _create_moviedaos()
 
-    moviedaos = job_check_new_movies()
+    for moviedao in moviedaos:
+        assert moviedao.movie_title
 
-    for dao in moviedaos:
-        if dao.movie:
-            assert dao.movie.id is not None
+
+def test_jobs_is_server_online_returns_false_during_tests():
+
+    assert not _is_server_online()
+
+
+def test_jobs_call_imdbpy_returns_exception_message_for_empty_movie_title(loop):
+
+    try:
+        imdbpy_return = loop.run_until_complete(call_imdbpy(''))
+    finally:
+        loop.close()
+
+    assert 'IMDBFoundNothingException' in imdbpy_return
+
+
+def test_jobs_call_imdbpy_returns_exception_message_for_unrecognised_movie_title(loop):
+
+    try:
+        imdbpy_return = loop.run_until_complete(call_imdbpy('123!@#!@#dawdaw'))
+    finally:
+        loop.close()
+
+    assert 'IMDBFoundNothingException' in imdbpy_return
+
+
+def test_jobs_call_imdbpy_returns_valid_info_for_private_rayan(loop):
+
+    try:
+        imdbpy_return = loop.run_until_complete(call_imdbpy('Private Ryan'))
+    finally:
+        loop.close()
+
+    assert 'Saving Private Ryan||8' in imdbpy_return
+
+
+def test_jobs_update_imdb_info_returns_false_for_moviedao_with_unrecognised_movie_title(loop):
+    movie_title = '123!@#!@#dawdaw'
+    moviedao = MovieDAO(movie_title)
+
+    try:
+        result = loop.run_until_complete(update_imdb_info(moviedao))
+    finally:
+        loop.close()
+
+    assert not result
+    assert len(moviedao.imdb_info) == 0
+
+
+def test_jobs_update_imdb_info_returns_true_for_private_rayan_moviedao(loop):
+    movie_title = 'Private Ryan'
+    moviedao = MovieDAO(movie_title)
+
+    try:
+        result = loop.run_until_complete(update_imdb_info(moviedao))
+    finally:
+        loop.close()
+
+    assert result
+    assert len(moviedao.imdb_info) == 4
+    assert 'Saving Private Ryan' in moviedao.imdb_info[0]
+    assert moviedao.imdb_info[1] > 8.0
+    assert len(moviedao.imdb_info[2]) > 1
+
+
+def test_jobs_job_check_new_movies_exits_during_tests():
+
+    with pytest.raises(SystemExit) as e:
+        job_check_new_movies()
+    assert type(e.value) == SystemExit
+
+
