@@ -32,7 +32,7 @@ def _add_movies(moviedaos):
 
 def _is_server_online():
     try:
-        url = 'http://localhost:5000'
+        url = 'http://127.0.0.1:5000' if app.config['DEBUG'] else 'http://127.0.0.1:80'
         print('Checking connection with server: %s' % url)
         r = requests.get(url)
 
@@ -53,11 +53,14 @@ def run_schedule():
         sys.exit()
 
     print('Schedule started')
-    while 1:
+    job_check_new_movies()
+    while True:
         schedule.run_pending()
+        time.sleep(1)
 
 
 # JOBS
+
 
 def job_check_new_movies():
     if not _is_server_online():

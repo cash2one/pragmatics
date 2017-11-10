@@ -11,6 +11,12 @@ def get_defaults():
     else:
         current_profile = Profile.query.order_by(Profile.id.asc()).first()
 
+    if not current_profile:
+        current_profile = Profile(name='Default Profile', min_rating=0.0)
+        db.session.add(current_profile)
+        db.session.commit()
+        db.session.flush()
+
     profiles = Profile.query.all()
     if not profiles:
         profiles = None
@@ -31,12 +37,17 @@ application_blueprint = Blueprint('application', __name__, template_folder='temp
 def index():
     context = get_defaults()
 
-    movies = Movie.query.filter(
-        ~Movie.genres.any(
-            Genre.id.in_(
-                [g.id for g in context['current_profile'].blacklist])),
-        Movie.rating >= context['current_profile'].min_rating
-    ).order_by(Movie.date.desc())
+    if context['current_profile'].blacklist:
+        movies = Movie.query.filter(
+            ~Movie.genres.any(
+                Genre.id.in_(
+                    [g.id for g in context['current_profile'].blacklist])),
+            Movie.rating >= context['current_profile'].min_rating
+        ).order_by(Movie.date.desc())
+    else:
+        movies = Movie.query.filter(
+            Movie.rating >= context['current_profile'].min_rating
+        ).order_by(Movie.date.desc())
 
     context.update({
         'movies': movies,

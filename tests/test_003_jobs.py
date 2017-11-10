@@ -6,8 +6,6 @@ os.environ["APP_SETTINGS"] = "testing"
 from ybsuggestions.crawler.jobs import _create_moviedaos, update_imdb_info, \
     job_check_new_movies, _is_server_online, call_imdbpy
 from ybsuggestions.crawler.moviedao import MovieDAO
-from ybsuggestions.crawler.ybparser import YBParser
-from instance.config import Config
 
 
 @pytest.fixture()

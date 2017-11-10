@@ -28,7 +28,7 @@ app.register_blueprint(application_blueprint)
 from ybsuggestions.application.apis import apis_blueprint
 app.register_blueprint(apis_blueprint)
 
-if not app.config['DEBUG']:
+if not app.config['TESTING']:
     from ybsuggestions.crawler.jobs import job_check_new_movies, run_schedule
 
     schedule.every(12).hours.do(job_check_new_movies)
