@@ -6,3 +6,5 @@ services:
      - "80:80"
     volumes:
      - .:/code
+    environment:
+     - HOST_URL=http://localhost:80

@@ -4,6 +4,7 @@ import asyncio
 import schedule
 import time
 import sys
+import os
 from ybsuggestions.crawler.ybparser import YBParser
 from ybsuggestions.crawler.moviedao import MovieDAO
 from ybsuggestions import app
@@ -32,7 +33,7 @@ def _add_movies(moviedaos):
 
 def _is_server_online():
     try:
-        url = 'http://127.0.0.1:5000' if app.config['DEBUG'] else 'http://127.0.0.1:80'
+        url = os.getenv('HOST_URL', 'http://18.216.240.105')
         print('Checking connection with server: %s' % url)
         r = requests.get(url)
 
@@ -47,13 +48,16 @@ def _is_server_online():
     return True
 
 
-def run_schedule():
+def run_schedule(loop):
+    schedule.every(12).hours.do(job_check_new_movies, loop)
+    print('"Check for new movies" job scheduled, every 12 hours')
+
     time.sleep(60)
     if not _is_server_online():
         sys.exit()
 
     print('Schedule started')
-    job_check_new_movies()
+    job_check_new_movies(loop)
     while True:
         schedule.run_pending()
         time.sleep(1)
@@ -62,7 +66,7 @@ def run_schedule():
 # JOBS
 
 
-def job_check_new_movies():
+def job_check_new_movies(loop):
     if not _is_server_online():
         sys.exit()
 
@@ -77,16 +81,11 @@ def job_check_new_movies():
     for dao_idx in range(len(moviedaos)):
         tasks.append(update_imdb_info(moviedaos[dao_idx], dao_idx))
 
-    if platform.system() == 'Windows':
-        loop = asyncio.ProactorEventLoop()
-        asyncio.set_event_loop(loop)
-    else:
-        loop = asyncio.get_event_loop()
-
+    asyncio.set_event_loop(loop)
     try:
         loop.run_until_complete(asyncio.gather(*tasks))
     finally:
-        loop.close()
+        pass
 
     _add_movies(moviedaos)
     print('Movies update ended.')
@@ -107,7 +106,7 @@ async def call_imdbpy(movie_title):
     #     *args, stdout=asyncio.subprocess.PIPE)
 
     process = await asyncio.create_subprocess_shell(
-        "python2 -W ignore " + app.root_path + "\crawler\imdbpy_p2script.py '" + str(movie_title) + "'"
+        "python2 -W ignore " + app.root_path + "//crawler//imdbpy_p2script.py '" + str(movie_title) + "'"
         , stdout=asyncio.subprocess.PIPE)
 
     stdout, stderr = await process.communicate()

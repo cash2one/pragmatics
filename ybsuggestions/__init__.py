@@ -1,5 +1,7 @@
 import os
 import schedule
+import asyncio
+import sys
 from threading import Thread
 from flask import Flask, url_for
 from flask_migrate import Migrate
@@ -31,9 +33,15 @@ app.register_blueprint(apis_blueprint)
 if not app.config['TESTING']:
     from ybsuggestions.crawler.jobs import job_check_new_movies, run_schedule
 
-    schedule.every(12).hours.do(job_check_new_movies)
-    print('"Check for new movies" job scheduled, every 12 hours')
-    t = Thread(target=run_schedule)
+    asyncio.get_child_watcher()
+    if sys.platform == 'win32':
+        loop = asyncio.ProactorEventLoop()
+    else:
+        loop = asyncio.new_event_loop()
+
+    asyncio.get_child_watcher().attach_loop(loop)
+
+    t = Thread(target=run_schedule, args=(loop, ))
     t.start()
 
 
