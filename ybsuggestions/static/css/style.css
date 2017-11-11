@@ -50,6 +50,7 @@ body, html{
     margin: 0;
     display: inline-block;
     color: grey;
+    cursor: pointer;
 }
 
 .suggestions .rate_up:hover{

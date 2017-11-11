@@ -33,12 +33,12 @@ def test_ybparser_is_inited_correctly_for_config_feedurl():
     assert yb_parser._feed_url == Config.YOURBIT_MOVIES_URL
 
 
-def test_ybparser_parse_feed_returns_empty_dict_for_not_responding_feedurl():
+def test_ybparser_parse_feed_returns_empty_feed_for_not_responding_feedurl():
     yb_parser = YBParser("http://shoud.not.responding.com.pl")
 
     feed = yb_parser.parse_feed()
 
-    assert feed == {}
+    assert not feed['entries']
 
 
 def test_ybparser_parse_feed_returns_filled_entries_from_feedurl(parser):
@@ -46,15 +46,15 @@ def test_ybparser_parse_feed_returns_filled_entries_from_feedurl(parser):
 
     assert feed is not None
     assert 'entries' in feed
-    assert feed.entries
+    assert feed['entries']
 
-    for entry in feed.entries:
+    for entry in feed['entries']:
         assert 'title' in entry
 
 
 def test_ybparser_get_torrents_titles_returns_empty_list_for_empty_entries(parser):
     feed = parser.parse_feed()
-    feed.entries = []
+    feed['entries'] = []
     torrents_titles = parser.get_torrents_titles(feed)
 
     assert not torrents_titles
@@ -66,7 +66,7 @@ def test_ybparser_get_torrents_titles_returns_correct_titles(parser):
 
     assert torrents_titles
     for idx, title in enumerate(torrents_titles):
-        assert title == feed.entries[idx]['title']
+        assert title == feed['entries'][idx]['title']
 
 
 def test_ybparser_get_movies_titles_returns_some_titles(parser):

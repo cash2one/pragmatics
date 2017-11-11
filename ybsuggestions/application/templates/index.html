@@ -30,10 +30,10 @@
                 </tr>
                 <tr>
                     <td class="rate" colspan="2">
-                        <a href="#" data-movie-id="{{movie.id}}" class="rate_base rate_down">
+                        <a data-movie-id="{{movie.id}}" class="rate_base rate_down">
                             <i class="fi-dislike medium"></i>
                         </a>
-                        <a href="#" data-movie-id="{{movie.id}}" class="rate_base{% if movie.id in liked_movies %} rated_up{% else %} rate_up{% endif %}">
+                        <a data-movie-id="{{movie.id}}" class="rate_base{% if movie.id in liked_movies %} rated_up{% else %} rate_up{% endif %}">
                             <i class="fi-like medium"></i>
                         </a>
                     </td>

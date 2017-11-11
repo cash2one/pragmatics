@@ -19,15 +19,12 @@ class YBParser:
         except Exception as e:
             print('Feedparser error' + e)
 
-        if feed.entries:
-            return feed
-        else:
-            return {}
+        return feed
 
     @staticmethod
     def get_torrents_titles(feed):
         torrents_titles = []
-        for entry in feed.entries:
+        for entry in feed['entries']:
             torrent_title = entry.title
             torrents_titles.append(torrent_title)
 
