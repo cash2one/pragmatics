@@ -28,7 +28,11 @@ def _add_movies(moviedaos):
             moviedaos[dao_idx].create_movie()
         except Exception as e:
             print(e)
-        moviedaos[dao_idx].add_movie()
+
+        try:
+            moviedaos[dao_idx].add_movie()
+        except Exception as e:
+            print(e)
 
 
 def _is_server_online():

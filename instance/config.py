@@ -7,6 +7,7 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = 'postgresql://newhope_movsug:movies2017prag@s39.vdl.pl'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     YOURBIT_MOVIES_URL = 'https://yourbittorrent.com/movies/rss.xml'
+    #YOURBIT_MOVIES_URL = 'https://rarbg.to/rssdd.php?category=movies'
 
 
 class DevelopmentConfig(Config):

@@ -16,6 +16,7 @@
 ###### RSS parsing:
 - YBParser in 'ybsuggestions/crawler' module.
 - For parsing xml used 'ptn' library
+- Because of often YourBitTorrent server problems and Cloudflare CAPTCHA screen, on deployment used similar feed from https://rarbg.to/rssdd.php?category=movies
 
 ###### Fetching IMDb rating and genres:
 - Job 'job_check_new_movies' in 'ybsuggestions/crawler/jobs.py' create async task for each movie.
