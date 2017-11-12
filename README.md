@@ -15,7 +15,8 @@
 
 ###### RSS parsing:
 - YBParser in 'ybsuggestions/crawler' module.
-- For parsing xml used 'ptn' library
+- For parsing xml used 'feedparser' library
+- For parsing torrents names used 'ptn' library
 
 ###### Fetching IMDb rating and genres:
 - Job 'job_check_new_movies' in 'ybsuggestions/crawler/jobs.py' create async task for each movie.
