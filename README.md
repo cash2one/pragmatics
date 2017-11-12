@@ -1,3 +1,40 @@
+## Task Summary:
+
+#### Configuration:
+- Repository: https://github.com/harzo/pragmatics
+- Docker settings in Dockerfile and docker-compose.yml
+- Possible deploy: http://18.216.240.105/
+
+#### Requirements:
+- db: used PostgreSQL db on private server
+- imdbpy: used in 'ybsuggestions/crawler' module (imdbpy_p2script.py)
+- asyncio: used in 'ybsuggestions/crawler' module (jobs.py), main loop created in 'ybsuggestions' init
+- pytest: test stored in 'tests' directory
+
+#### Functionalities:
+
+###### RSS parsing:
+- YBParser in 'ybsuggestions/crawler' module.
+- For parsing xml used 'ptn' library
+
+###### Fetching IMDb rating and genres:
+- Job 'job_check_new_movies' in 'ybsuggestions/crawler/jobs.py' create async task for each movie.
+- Async 'call_imdbpy' in 'ybsuggestions/crawler/jobs.py' runs Python2 script for fetching imdb rating.
+- Python2 'imdbpy_p2script.py' in 'ybsuggestions/crawler' use 'imdbpy'.
+
+###### Calling 2 times a day:
+- Side Thread created in 'ybsuggestions' init.
+- Job 'job_check_new_movies' added to schedule executing sctipt each 12 hours.
+
+###### Objects CRUD:
+- Used Flask sql-alchemy to managing objects (Movie, Profile, Genre)
+- For Movie created special data access class - MovieDAO in 'ybsuggestions/crawler/moviedao.py'
+
+###### Apis:
+- Created as Flask blueprint in 'ybsuggestions/application/apis.py'
+
+***
+
 ## Python Task Description:
 Mini-service suggesting movies to download from torrents
 
