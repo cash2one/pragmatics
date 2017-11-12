@@ -3,7 +3,7 @@
 #### Configuration:
 - Repository: https://github.com/harzo/pragmatics
 - Docker settings in Dockerfile and docker-compose.yml
-- Possible deploy: http://18.216.240.105/
+- Possible AWS deploy: http://18.216.240.105/
 
 #### Requirements:
 - db: used PostgreSQL db on private server
@@ -15,7 +15,8 @@
 
 ###### RSS parsing:
 - YBParser in 'ybsuggestions/crawler' module.
-- For parsing xml used 'ptn' library
+- For parsing xml used 'feedparser' library
+- For parsing torrents names used 'ptn' library
 - Because of often YourBitTorrent server problems and Cloudflare CAPTCHA screen, on deployment used similar feed from https://rarbg.to/rssdd.php?category=movies
 
 ###### Fetching IMDb rating and genres:
