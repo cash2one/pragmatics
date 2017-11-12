@@ -3,7 +3,7 @@
 #### Configuration:
 - Repository: https://github.com/harzo/pragmatics
 - Docker settings in Dockerfile and docker-compose.yml
-- Possible deploy: http://18.216.240.105/
+- Possible AWS deploy: http://18.216.240.105/
 
 #### Requirements:
 - db: used PostgreSQL db on private server
