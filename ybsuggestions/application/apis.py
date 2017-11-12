@@ -88,10 +88,3 @@ def post_good_suggestion():
 
     return handle_profile_suggestion_api(data)
 
-
-@apis_blueprint.route('/get_movies_update', methods=['GET'])
-def get_movies_update():
-
-    job_check_new_movies()
-
-    return jsonify({'status': 'success'})
