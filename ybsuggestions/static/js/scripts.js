@@ -1,5 +1,4 @@
 $(window).bind("load resize", function(){
-//    $(".movie-item").css('display', 'none');
     $('.off-canvas').css('min-height', window.innerHeight+'px');
     $('.off-canvas-content').css('min-height', window.innerHeight+'px');
 });
@@ -50,6 +49,23 @@ function rateAjaxConnection(elem, url, rate_up){
 
     });
 }
+
+$(function () {
+    var moviesPerPage = 12;
+    var moviesSize = $('.movie-item').length;
+    var obj = $('#pagination').twbsPagination({
+        totalPages: parseInt(moviesSize/moviesPerPage),
+        visiblePages: 10,
+        onPageClick: function (event, page) {
+            $(".movie-item").css('display', 'none');
+            var elements = $(".movie-item").slice((page-1)*moviesPerPage,page*moviesPerPage);
+            $.each( elements, function( index, value ){
+                $(value).css('display','inline-block');
+            });
+        }
+    });
+    console.info(obj.data());
+});
 
 $( document ).ready(function() {
     profileCookieManager();

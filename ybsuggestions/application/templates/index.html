@@ -13,20 +13,20 @@
         <div id="movie-{{ movie.id }}" class="movie-item column">
             <table class="unstriped">
                 <tr>
-                   <td class="thumb" rowspan="3" width="94">
+                    <td class="title" colspan="2">{{movie.name}}</td>
+                </tr>
+                <tr>
+                   <td class="thumb" rowspan="2" width="94">
                        <img class="thumbnail" src="{% if movie.cover %}{{movie.cover}}{% else %}http://placehold.it/94x140{% endif %}">
                    </td>
-                    <td class="title">{{movie.name}}</td>
-                </tr>
-                <tr>
-                    <td class="rating">IMDb: {% if movie.rating > 0 %}{{movie.rating}}{% else %}N/A{% endif %}</td>
-                </tr>
-                <tr>
                     <td class="genres">
                     {% for genre in movie.genres %}
                         <span class="radius{% if genre not in current_profile.whitelist %} secondary{% endif %} label">{{genre.name}}</span>
                     {% endfor %}
                     </td>
+                </tr>
+                <tr>
+                    <td class="rating">IMDb: {% if movie.rating > 0 %}{{movie.rating}}{% else %}N/A{% endif %}</td>
                 </tr>
                 <tr>
                     <td class="rate" colspan="2">
@@ -44,25 +44,6 @@
     {% endfor %}
     </div>
     <div class="suggestions-pagination row small-up-2 medium-up-3 large-up-4">
-        <nav aria-label="Page navigation">
-            <ul class="pagination" id="pagination"></ul>
-        </nav>
+        <ul class="pagination" id="pagination" role="navigation" aria-label="Pagination"></ul>
     </div>
-    <script type="text/javascript">
-        var moviesSize = $('.movie-item').length;
-        $(function () {
-            var obj = $('#pagination').twbsPagination({
-                totalPages: moviesSize,
-                visiblePages: 10,
-                onPageClick: function (event, page) {
-                    $(".movie-item").css('display', 'none');
-                    var elements = $(".movie-item").slice((page-1)*12,page*12);
-                    $.each( elements, function( index, value ){
-                        $(value).css('display','inline-block');
-                    });
-                }
-            });
-            console.info(obj.data());
-        });
-    </script>
 {% endblock %}

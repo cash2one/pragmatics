@@ -25,13 +25,13 @@ body, html{
 
 .suggestions table .thumbnail{
     margin: 0;
+    width: 97px;
 }
 
 .suggestions .title{
     font-weight: bold;
     font-size: 14px;
     height: 50px;
-    float: left;
     line-height: 20px;
 }
 
@@ -84,4 +84,23 @@ body, html{
 
 .object-list table th{
     text-align: left;
+}
+
+#pagination {
+    text-align: center;
+}
+
+#pagination li{
+    margin: 0;
+    padding: 0 5px;
+}
+
+#pagination .disabled{
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+#pagination .active a{
+    background: #2199e8;
+    color: #fff;
 }

@@ -7,7 +7,7 @@
 
 #### Requirements:
 - db: used PostgreSQL db on private server
-- imdbpy: used in 'ybsuggestions/crawler' module (imdbpy_p2script.py)
+- imdbparser: used in 'ybsuggestions/crawler' module (imdbpyparser.py)
 - asyncio: used in 'ybsuggestions/crawler' module (jobs.py), main loop created in 'ybsuggestions' init
 - pytest: test stored in 'tests' directory
 
@@ -21,12 +21,12 @@
 
 ###### Fetching IMDb rating and genres:
 - Job 'job_check_new_movies' in 'ybsuggestions/crawler/jobs.py' create async task for each movie.
-- Async 'call_imdbpy' in 'ybsuggestions/crawler/jobs.py' runs Python2 script for fetching imdb rating.
-- Python2 'imdbpy_p2script.py' in 'ybsuggestions/crawler' use 'imdbpy'.
+- Async 'update_imdb_info' in 'ybsuggestions/crawler/jobs.py' runs IMDbSearchParser
+- IMDbSearchParser in 'ybsuggestions/crawler' is based on BeautifulSOup used by 'imdbpy'.
 
 ###### Calling 2 times a day:
 - Side Thread created in 'ybsuggestions' init.
-- Job 'job_check_new_movies' added to schedule executing sctipt each 12 hours.
+- Job 'job_check_new_movies' added to schedule executing script each 12 hours.
 
 ###### Objects CRUD:
 - Used Flask sql-alchemy to managing objects (Movie, Profile, Genre)

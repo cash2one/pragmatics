@@ -7,3 +7,4 @@ pytest
 requests
 schedule
 psycopg2
+bs4

@@ -1,7 +1,5 @@
-import json
 from flask import jsonify, Blueprint, request
 from ybsuggestions import db
-from ybsuggestions.crawler.jobs import job_check_new_movies
 from ybsuggestions.models import Movie, Profile, Genre, ProfileSuggestion
 
 apis_blueprint = Blueprint('apis', __name__, template_folder='templates')

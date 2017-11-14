@@ -1,9 +1,8 @@
 import os
-import schedule
 import asyncio
 import sys
 from threading import Thread
-from flask import Flask, url_for
+from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from instance.config import app_config
@@ -30,26 +29,26 @@ app.register_blueprint(application_blueprint)
 from ybsuggestions.application.apis import apis_blueprint
 app.register_blueprint(apis_blueprint)
 
-# if not app.config['TESTING']:
-#     from ybsuggestions.crawler.jobs import job_check_new_movies, run_schedule
-#
-#     try:
-#         asyncio.get_child_watcher()
-#     except NotImplementedError as e:
-#         print(e)
-#
-#     if sys.platform == 'win32':
-#         loop = asyncio.ProactorEventLoop()
-#     else:
-#         loop = asyncio.new_event_loop()
-#
-#     try:
-#         asyncio.get_child_watcher().attach_loop(loop)
-#     except NotImplementedError as e:
-#         print(e)
-#
-#     t = Thread(target=run_schedule, args=(loop, ))
-#     t.start()
+if not app.config['TESTING']:
+    from ybsuggestions.crawler.jobs import job_check_new_movies, run_schedule
+
+    try:
+        asyncio.get_child_watcher()
+    except NotImplementedError as e:
+        print(e)
+
+    if sys.platform == 'win32':
+        loop = asyncio.ProactorEventLoop()
+    else:
+        loop = asyncio.new_event_loop()
+
+    try:
+        asyncio.get_child_watcher().attach_loop(loop)
+    except NotImplementedError as e:
+        print(e)
+
+    t = Thread(target=run_schedule, args=(loop, ))
+    t.start()
 
 
 
