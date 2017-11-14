@@ -2,6 +2,10 @@ body, html{
     min-height: 100%;
 }
 
+.off-canvas{
+    height: 100%;
+}
+
 #profile-info{
     z-index: 1000;
 }

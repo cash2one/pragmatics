@@ -13,13 +13,13 @@ class MovieDAO:
 
     def create_movie(self):
         if self.imdb_info:
-            if len(self.imdb_info) == 4:
-                title = self.imdb_info[0]
+            if set(['title', 'rating', 'genres', 'cover']) == set(self.imdb_info.keys()):
+                title = self.imdb_info['title']
 
                 if not MovieDAO.is_movie_duplicate(title):
-                    rating = self.imdb_info[1]
-                    genres = MovieDAO.fetch_movie_genres(self.imdb_info[2])
-                    cover = self.imdb_info[3]
+                    rating = self.imdb_info['rating']
+                    genres = MovieDAO.fetch_movie_genres(self.imdb_info['genres'])
+                    cover = self.imdb_info['cover']
 
                     self.movie = Movie(name=title, rating=rating, genres=genres, cover=cover)
                 else:

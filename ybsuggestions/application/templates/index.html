@@ -10,7 +10,7 @@
     <div class="suggestions row small-up-2 medium-up-3 large-up-4">
     {% for movie in movies %}
         {% if movie.id not in dismissed_movies %}
-        <div id="movie-{{ movie.id }}" class="column">
+        <div id="movie-{{ movie.id }}" class="movie-item column">
             <table class="unstriped">
                 <tr>
                    <td class="thumb" rowspan="3" width="94">
@@ -43,4 +43,26 @@
         {% endif %}
     {% endfor %}
     </div>
+    <div class="suggestions-pagination row small-up-2 medium-up-3 large-up-4">
+        <nav aria-label="Page navigation">
+            <ul class="pagination" id="pagination"></ul>
+        </nav>
+    </div>
+    <script type="text/javascript">
+        var moviesSize = $('.movie-item').length;
+        $(function () {
+            var obj = $('#pagination').twbsPagination({
+                totalPages: moviesSize,
+                visiblePages: 10,
+                onPageClick: function (event, page) {
+                    $(".movie-item").css('display', 'none');
+                    var elements = $(".movie-item").slice((page-1)*12,page*12);
+                    $.each( elements, function( index, value ){
+                        $(value).css('display','inline-block');
+                    });
+                }
+            });
+            console.info(obj.data());
+        });
+    </script>
 {% endblock %}

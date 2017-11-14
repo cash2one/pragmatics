@@ -1,4 +1,5 @@
 $(window).bind("load resize", function(){
+//    $(".movie-item").css('display', 'none');
     $('.off-canvas').css('min-height', window.innerHeight+'px');
     $('.off-canvas-content').css('min-height', window.innerHeight+'px');
 });

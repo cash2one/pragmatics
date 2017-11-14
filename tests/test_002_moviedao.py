@@ -108,23 +108,33 @@ def test_moviedao_is_movie_duplicate_returns_false_for_new_title():
 
 
 def test_moviedao_create_movie_creates_object_for_valid_imdb_info(moviedao):
-    imdb_info = [moviedao.movie_title, 5.0, ['Drama', 'Horror'], '']
+    imdb_info = {
+        'title': moviedao.movie_title,
+        'rating': 5.0,
+        'genres': ['Drama', 'Horror'],
+        'cover': ''
+    }
     moviedao.imdb_info = imdb_info
 
     moviedao.create_movie()
 
     assert moviedao.movie
-    assert moviedao.movie.name == imdb_info[0]
-    assert moviedao.movie.rating == imdb_info[1]
+    assert moviedao.movie.name == imdb_info['title']
+    assert moviedao.movie.rating == imdb_info['rating']
     for genre in moviedao.movie.genres:
-        assert genre.name in imdb_info[2]
-    assert moviedao.movie.cover == imdb_info[3]
+        assert genre.name in imdb_info['genres']
+    assert moviedao.movie.cover == imdb_info['cover']
 
 
 def test_moviedao_create_movie_raise_exception_for_imdb_info_with_title_duplicate(moviedao_movie):
     moviedao_movie.add_movie()
 
-    imdb_info = [moviedao_movie.movie_title, 5.0, ['Drama', 'Horror'], '']
+    imdb_info = {
+        'title': moviedao_movie.movie_title,
+        'rating': 5.0,
+        'genres': ['Drama', 'Horror'],
+        'cover': ''
+    }
     moviedao_movie.imdb_info = imdb_info
 
     with pytest.raises(Exception) as e:
@@ -133,7 +143,10 @@ def test_moviedao_create_movie_raise_exception_for_imdb_info_with_title_duplicat
 
 
 def test_moviedao_create_movie_raise_exception_for_corrupted_imdb_info(moviedao):
-    imdb_info = [5.0, '']
+    imdb_info = {
+        'rating': 5.0,
+        'cover': ''
+    }
     moviedao.imdb_info = imdb_info
 
     with pytest.raises(AttributeError) as e:
@@ -142,7 +155,7 @@ def test_moviedao_create_movie_raise_exception_for_corrupted_imdb_info(moviedao)
 
 
 def test_moviedao_create_movie_raise_exception_for_empty_imdb_info(moviedao):
-    imdb_info = []
+    imdb_info = {}
     moviedao.imdb_info = imdb_info
 
     with pytest.raises(AttributeError) as e:

@@ -7,6 +7,7 @@ import sys
 import os
 from ybsuggestions.crawler.ybparser import YBParser
 from ybsuggestions.crawler.moviedao import MovieDAO
+from ybsuggestions.crawler.imdbparser import IMDbSearchParser
 from ybsuggestions import app
 
 
@@ -99,46 +100,17 @@ def job_check_new_movies(loop):
 
 # ASYNC FUNCTIONS
 
-async def call_imdbpy(movie_title):
-    if not movie_title:
-        return 'IMDBFoundNothingException'
-    # args = ["python2", "-W", "ignore",
-    #         app.root_path + "\crawler\imdbpy_p2script.py",
-    #         str(movie_title)]
-    #
-    # process = await asyncio.create_subprocess_exec(
-    #     *args, stdout=asyncio.subprocess.PIPE)
-
-    process = await asyncio.create_subprocess_shell(
-        "python2 -W ignore " + app.root_path + "//crawler//imdbpy_p2script.py '" + str(movie_title) + "'"
-        , stdout=asyncio.subprocess.PIPE)
-
-    stdout, stderr = await process.communicate()
-
-    if process.returncode == 0:
-        print('Done! ', '(pid = ' + str(process.pid) + ')')
-    else:
-        print('Failed! ', '(pid = ' + str(process.pid) + ')')
-
-    return stdout.decode("utf-8").strip().replace("u'", "")
-
-
 async def update_imdb_info(moviedao, dao_idx=None):
+    parser = IMDbSearchParser()
+    imdb_search = parser.find_movies_by_title(moviedao.movie_title, only_first=True)
 
-    imdbpy_output = await call_imdbpy(moviedao.movie_title)
-
-    if imdbpy_output == 'IMDBFoundNothingException':
-        moviedao.imdb_info = []
+    if not imdb_search:
+        moviedao.imdb_info = None
         if dao_idx is not None:
             print('IMDB found nothing for idx: %d' % dao_idx)
         return False
 
-    imdb_info = imdbpy_output.split('||')
-    if len(imdb_info) > 2:
-        imdb_info[1] = float(imdb_info[1])
-        imdb_info[2] = [g.strip(" \'") for g in imdb_info[2].strip('[]').split(',')]
-
-    moviedao.imdb_info = imdb_info
+    moviedao.imdb_info = imdb_search[0]
 
     return True
 
